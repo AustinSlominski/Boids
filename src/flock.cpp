@@ -30,12 +30,12 @@ void Boid::run(vector<Boid> & boids)
     flock(boids);
     update();
 
-    //drawTracer();
+    drawTracer();
     
     ofPushMatrix();
         ofTranslate(position.x,position.y);
         ofRotate(theta);
-        drawTriangles();
+        drawEllipse();
     ofPopMatrix();
 }
 
@@ -57,17 +57,16 @@ void Boid::update()
         curr_ind = (curr_ind + 1) % ARR_LEN;
         prev_ind = (curr_ind - 1) % ARR_LEN;
         //-------------------------------------
-        //-------------------------------------
-        //-------------------------------------
+        
         
         color = ofFloatColor(1-(running_avg.y*color_scl),1-(running_avg.x*color_scl),1-(running_avg.z*color_scl));
     }else{
         color = ofFloatColor(255);
     }
     
-    checkGridID();
-    
+    //update velocity
     velocity = acceleration + velocity;
+    //range speed
     velocity.limit(maxspeed);
     position = position     + velocity;
     acceleration = ofVec2f(0,0);
@@ -78,6 +77,7 @@ void Boid::update()
 
 //--------------------------------------------------------------
 void Boid::drawTriangles(){
+
     ofSetColor(color);
         ofDrawTriangle(0,draw_size*2,-draw_size,-draw_size,draw_size,-draw_size);
     ofSetColor(255);
@@ -125,6 +125,7 @@ void Boid::drawTracer(){
 
 //--------------------------------------------------------------
 void Boid::applyForce(ofVec2f force){
+    // We could add mass here if we want A = F / M
     acceleration = acceleration + force;
 }
 
@@ -134,6 +135,7 @@ void Boid::flock(vector<Boid> & boids) {
     ali = align(boids);
     coh = cohesion(boids);
 
+    // Arbitrarily weight these forces
     sep = sep * 1.5;
     ali = ali * 1.0;
     coh = coh * 1.0;
@@ -146,18 +148,22 @@ void Boid::flock(vector<Boid> & boids) {
 //--------------------------------------------------------------
 ofVec2f Boid::seek(ofVec2f target){
     ofVec2f desired = target - position;
+    // Scale to maximum speed
     desired.normalize();
     desired = desired * maxspeed;
 
+    // Steering = Desired minus Velocity
     ofVec2f steer = desired - velocity;
-    steer.limit(maxforce);
+    steer.limit(maxforce);  // Limit to maximum steering force
     return steer;
 }
 
 //--------------------------------------------------------------
 ofVec2f Boid::separate(vector<Boid> & boids){
+    //distance of desired separation
     float desiredseparation = 25.0f;
     
+    //steering vector
     ofVec2f steer = ofVec2f(0, 0);
     
     for (int i=0; i < boids.size(); i++) {
@@ -198,6 +204,7 @@ ofVec2f Boid::align(vector<Boid> & boids){
     }
     if (count > 0) {
         sum = sum/(float)count;
+        // Implement Reynolds: Steering = Desired - Velocity
         sum.normalize();
         sum = sum * maxspeed;
         ofVec2f steer = sum - velocity;
@@ -217,13 +224,13 @@ ofVec2f Boid::cohesion(vector<Boid> & boids){
     for (int i=0; i < boids.size(); i++) {
         float d = position.distance(boids[i].position);
         if ((d > 0) && (d < neighbordist)) {
-            sum = sum + boids[i].position;
+            sum = sum + boids[i].position; // Add position
             count++;
         }
     }
     if (count > 0) {
         sum = sum/count;
-        return seek(sum);
+        return seek(sum);  // Steer towards the position
     }
     else {
         return ofVec2f(0,0);
@@ -231,38 +238,13 @@ ofVec2f Boid::cohesion(vector<Boid> & boids){
 }
 
 //--------------------------------------------------------------
-bool Boid::checkDead(int offset){
-    if(position.x > ofGetWidth()+offset || position.x < 0-offset || position.y > ofGetHeight()+offset || position.y < 0-offset){
+bool Boid::checkDead(){
+    if(position.x > ofGetWidth()+700 || position.x < 0-700 || position.y > ofGetHeight()+700 || position.y < 0-700){
         return true;
     }else{
         return false;
     }
 }
-
-////--------------------------------------------------------------
-//bool Boid::checkGridID()
-//{
-//    int t_id;
-//    int g_width  = ofGetWidth() / 3;
-//    int g_height = ofGetHeight() / 3;
-//    
-//    int i_x = floor(position.x / 3);
-//    int i_y = floor(position.y / 3);
-//    
-//    if(i_y == 0){
-//        t_id = i_y;
-//    }else{
-//        t_id = i_y + (2+(i_x*i_y));
-//    }
-//    
-//    if(t_id == grid_id){//if it changed
-//        grid_id = t_id;
-//        return false;
-//    }else{
-//        grid_id = t_id;
-//        return true;
-//    }
-//}
 
 //--------------------------------------------------------------
 void Boid::pull(ofVec2f p, float strength, float range){

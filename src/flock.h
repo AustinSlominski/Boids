@@ -8,20 +8,14 @@ class Boid : ofNode {
 public:
     void run(vector<Boid> & boids);
     void update();
-
-    //------ DRAW METHODS -------
     void drawTriangles();
     void drawEllipse();
     void drawTracer();
     void drawDebug();
-    //---------------------------
-    
     void applyForce(ofVec2f force);
     void flock(vector<Boid> & boids);
-    bool checkDead(int offset);
-//    bool checkGridID();
+    bool checkDead();
     void pull(ofVec2f p, float strength, float limit);
-    
     
     ofVec2f seek(ofVec2f target);
     ofVec2f align(vector<Boid> & boids);
@@ -48,8 +42,6 @@ public:
     
     string error;
     ofMesh tracer;
-    
-    int grid_id;
     
     Boid(int x, int y);
 };
