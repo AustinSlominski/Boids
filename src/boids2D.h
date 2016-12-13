@@ -19,7 +19,6 @@ public:
     void applyForce(ofVec2f force);
     void flock(vector<Boid> & boids);
     bool checkDead(int offset);
-//    bool checkGridID();
     void pull(ofVec2f p, float strength, float limit);
     
     
@@ -48,8 +47,6 @@ public:
     
     string error;
     ofMesh tracer;
-    
-    int grid_id;
     
     Boid(int x, int y);
 };

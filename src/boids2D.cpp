@@ -17,7 +17,6 @@ Boid::Boid(int x, int y)
 
     prev_ind = 0;
     curr_ind = 0;
-    
     b_color = true;
     draw_size = 2;
     
@@ -64,8 +63,6 @@ void Boid::update()
     }else{
         color = ofFloatColor(255);
     }
-    
-    checkGridID();
     
     velocity = acceleration + velocity;
     velocity.limit(maxspeed);
@@ -238,31 +235,6 @@ bool Boid::checkDead(int offset){
         return false;
     }
 }
-
-////--------------------------------------------------------------
-//bool Boid::checkGridID()
-//{
-//    int t_id;
-//    int g_width  = ofGetWidth() / 3;
-//    int g_height = ofGetHeight() / 3;
-//    
-//    int i_x = floor(position.x / 3);
-//    int i_y = floor(position.y / 3);
-//    
-//    if(i_y == 0){
-//        t_id = i_y;
-//    }else{
-//        t_id = i_y + (2+(i_x*i_y));
-//    }
-//    
-//    if(t_id == grid_id){//if it changed
-//        grid_id = t_id;
-//        return false;
-//    }else{
-//        grid_id = t_id;
-//        return true;
-//    }
-//}
 
 //--------------------------------------------------------------
 void Boid::pull(ofVec2f p, float strength, float range){
